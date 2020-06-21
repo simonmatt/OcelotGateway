@@ -1,0 +1,176 @@
+{
+  "ReRoutes": [
+    {
+      "DownstreamPathTemplate": "/api/values",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5001
+        },
+        {
+          "Host": "localhost",
+          "Port": 5002
+        }
+      ],
+      "UpstreamPathTemplate": "/requestheaders",
+      "UpstreamHttpMethod": [ "Get" ],
+      "LoadBalancerOptions": {
+        "Type": "RoundRobin"
+      },
+      "DownstreamHeaderTransform": {
+        "Name": "webapi matt",
+        "Location": "{BaseUrl}, {DownstreamBaseUrl}",
+        "Server": "Kestrel, Nginx",
+        "X-Forwarded-For": "{RemoteIpAddress}"
+      },
+      "UpstreamHeaderTransform": {
+        "jiaobaba": "baba" 
+      } 
+    },
+    {
+      "DownstreamPathTemplate": "/api/values",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5001
+        }
+      ],
+      "UpstreamPathTemplate": "/webapia/values",
+      "UpstreamHttpMethod": [ "Get" ],
+      "ReRouteIsCaseSensitive": false, // 是否对上游链接大小写敏感
+      "AuthenticationOptions": { // 权限控制
+        "AuthenticationProviderKey": "TestKey",
+        "AllowScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/values",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5002
+        }
+      ],
+      "UpstreamPathTemplate": "/webapib/values",
+      "UpstreamHttpMethod": [ "Get" ],
+      "RateLimitOptions": { // 限流
+        "ClientWhiteList": [
+          "myclient"
+        ],
+        "EnableRateLimiting": true, // 启用限流
+        "Period": "1m", // 限流限制的时间段，限流1分钟，可选值：1s, 1m, 1h, 1d, 1m, 1y
+        "PeriodTimespan": 30, // 超过限流限制的次数后，需要等待重置的时间，单位是秒
+        "Limit": 2 // 在Period时间内最大能访问的次数
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/user/getsex",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5002
+        }
+      ],
+      "UpstreamPathTemplate": "/sex",
+      "UpstreamHttpMethod": [ "Get" ],
+      "Key": "Sex"
+    },
+    {
+      "DownstreamPathTemplate": "/api/user/getage",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5002
+        }
+      ],
+      "UpstreamPathTemplate": "/age",
+      "UpstreamHttpMethod": [ "Get" ],
+      "Key": "Age"
+    },
+    {
+      "DownstreamPathTemplate": "/api/user/getid",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5002
+        }
+      ],
+      "UpstreamPathTemplate": "/id",
+      "UpstreamHttpMethod": [ "Get" ],
+      "Key": "ID"
+    },
+    {
+      "DownstreamPathTemplate": "/api/counter/count",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/count",
+      "UpstreamHttpMethod": [ "GET" ],
+      "ServiceName": "Count", // 服务名，用于Consul中配置
+      "LoadBalancerOptions": {
+        "Type": "RoundRobin"
+      }, // 负载均衡模式，暂支持时间片轮询(RoundRobin)和最少连接(LeastConnection)模式
+      "UseServiceDiscovery": true // 启用服务发现
+    },
+    {
+      "DownstreamPathTemplate": "/api/time/getnow",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5001
+        }
+      ],
+      "UpstreamPathTemplate": "/now",
+      "UpstreamHttpMethod": [ "GET" ],
+      "FileCacheOptions": { // 缓存
+        "TtlSeconds": 60, // 缓存时间
+        "Region": "somename"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/slow/getname",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5001
+        }
+      ],
+      "UpstreamPathTemplate": "/getname",
+      "UpstreamHttpMethod": [ "GET" ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3, // 发生几次异常（如超时）后熔断，该值要>0
+        "DurationOfBreak": 60000, // 熔断时间，毫秒
+        "TimeoutValue": 1000 // 下游超时时间，毫秒，默认90秒
+      }
+    }
+  ],
+  "Aggregates": [
+    {
+      "ReRouteKeys": [
+        "Sex",
+        "Age",
+        "ID"
+      ],
+      "UpstreamPathTemplate": "/getuserinfo"
+    }
+  ],
+  "GlobalConfiguration": {
+    "RequestIdKey": "OcRequestId", 
+    "ServiceDiscoveryProvider": { // 配合Consul，服务发现
+      "Host": "localhost",
+      "Port": 8500
+    },
+    "RateLimitOptions": { // 全局配置限流
+      "DisableRateLimitHeaders": true,
+      "QuotaExceededMessage": "Fuck!!! Stop request...",
+      "HttpStatusCode": 999,
+      "ClientIdHeader": "cid"
+    }
+  }
+}
