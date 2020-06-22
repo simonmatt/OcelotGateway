@@ -28,4 +28,57 @@ $ docker run -d -p 8500:8500 -v /data/consul:/consul/data -e CONSUL_BIND_INTERFA
 ```bash
 # 检查当前Consul集群信息
 $ docker exec consul_server_1 consul members
+
+# 输出
+Node  Address          Status  Type    Build  Protocol  DC   Segment
+1     172.17.0.4:8301  alive   server  1.8.0  2         dc1  <all>
 ```
+
+### Server加入集群
+Server模式在集群中建议是三个以上，这样更好地避免因为Server的宕机导致整个集群挂掉的风险。
+
+```bash
+# 加入节点2
+$ docker run -d -e CONSUL_BIND_INTERFACE='eth0' --name=consul_server_2 consul:latest agent -server -node=2 -join='172.17.0.4'
+
+# 加入节点3
+$ docker run -d -e CONSUL_BIND_INTERFACE='eth0' --name=consul_server_3 consul:latest agent -server -node=3 -join='172.17.0.4'
+```
+
+#### Client加入集群
+Client在Consul集群中起到代理Server的作用，Client模式不持久化数据。一般情况每台应用服务器都会安装一个或多个Client，这样可以减轻跨服务器访问带来的性能损耗，也可以减轻Server的请求压力。
+
+```bash
+# 加入client 1
+$ docker run -d -e CONSUL_BIND_INTERFACE='eth0' --name=consul_server_4 consul:latest agent -client -node=4 -join='172.17.0.4' -client='0.0.0.0'
+
+# 加入Client 2
+$ docker run -d -e CONSUL_BIND_INTERFACE='eth0' --name=consul_server_5 consul:latest agent -client -node=5 -join='172.17.0.4' -client='0.0.0.0'
+```
+
+验证结果
+
+```bash
+$ docker exec consul_server_1 consul members
+
+# 输出
+Node          Address          Status  Type    Build  Protocol  DC   Segment
+1             172.17.0.4:8301  alive   server  1.8.0  2         dc1  <all>
+2             172.17.0.5:8301  alive   server  1.8.0  2         dc1  <all>
+3             172.17.0.6:8301  alive   server  1.8.0  2         dc1  <all>
+2c2946dfcec7  172.17.0.7:8301  alive   client  1.8.0  2         dc1  <default>
+6b19975fe06e  172.17.0.8:8301  alive   client  1.8.0  2         dc1  <default>
+```
+
+> 参考资料
+> 
+> Consul 原理和使用简介 ： https://blog.coding.net/blog/intro-consul?type=hot
+> Consul 镜像仓库地址 ：https://hub.docker.com/_/consul
+> Consul 镜像使用文档：https://github.com/docker-library/docs/tree/master/consul
+> Consul 官方文档 ：https://www.consul.io/docs/agent/basics.html
+> 使用Consul和Registration对Docker容器进行服务发现
+> https://livewyer.io/blog/2015/02/05/service-discovery-docker-containers-using-consul-and-registrator
+> 基于Consul+Registrator+Nginx实现容器服务自动发现的集群框架
+> http://www.mamicode.com/info-detail-2222200.html
+> .NET Core微服务之基于Consul实现服务治理
+> https://www.cnblogs.com/edisonchou/p/9124985.html
