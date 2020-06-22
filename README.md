@@ -73,12 +73,13 @@ Node          Address          Status  Type    Build  Protocol  DC   Segment
 > 参考资料
 > 
 > Consul 原理和使用简介 ： https://blog.coding.net/blog/intro-consul?type=hot
+> 
 > Consul 镜像仓库地址 ：https://hub.docker.com/_/consul
+> 
 > Consul 镜像使用文档：https://github.com/docker-library/docs/tree/master/consul
+> 
 > Consul 官方文档 ：https://www.consul.io/docs/agent/basics.html
-> 使用Consul和Registration对Docker容器进行服务发现
-> https://livewyer.io/blog/2015/02/05/service-discovery-docker-containers-using-consul-and-registrator
-> 基于Consul+Registrator+Nginx实现容器服务自动发现的集群框架
-> http://www.mamicode.com/info-detail-2222200.html
-> .NET Core微服务之基于Consul实现服务治理
-> https://www.cnblogs.com/edisonchou/p/9124985.html
+> 
+> 使用Consul和Registration对Docker容器进行服务发现： https://livewyer.io/blog/2015/02/05/service-discovery-docker-containers-using-consul-and-registrator
+> 基于Consul+Registrator+Nginx实现容器服务自动发现的集群框架：http://www.mamicode.com/info-detail-2222200.html
+> .NET Core微服务之基于Consul实现服务治理：https://www.cnblogs.com/edisonchou/p/9124985.html
